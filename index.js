@@ -18,24 +18,29 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 // Timestamp API routes
-app.get("/api/:date", (req, res) => {
+app.get("/api/:date?", (req, res) => {
   const dateParam = req.params.date;
   let date;
 
-  // Strict numeric check (allows negative timestamps)
-  if (/^-?\d+$/.test(dateParam)) {
+  if (!dateParam) {
+    // No date provided, use current time
+    date = new Date();
+  } else if (/^-?\d+$/.test(dateParam)) {
+    // It's a Unix timestamp
     date = new Date(parseInt(dateParam));
   } else {
+    // It's a date string
     date = new Date(dateParam);
   }
 
+  // Invalid date check
   if (date.toString() === "Invalid Date") {
-    return res.status(400).json({ error: "Invalid Date" });
+    return res.json({ error: "Invalid Date" });
   }
 
   res.json({
     unix: date.getTime(),
-    utc: date.toUTCString(),
+    utc: date.toUTCString()
   });
 });
 

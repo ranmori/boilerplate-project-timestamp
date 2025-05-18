@@ -17,6 +17,36 @@ app.use(express.static('public'));
 app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
+// Timestamp API routes
+app.get("/api/:date", (req, res) => {
+  const dateParam = req.params.date;
+  let date;
+
+  // Strict numeric check (allows negative timestamps)
+  if (/^-?\d+$/.test(dateParam)) {
+    date = new Date(parseInt(dateParam));
+  } else {
+    date = new Date(dateParam);
+  }
+
+  if (date.toString() === "Invalid Date") {
+    return res.status(400).json({ error: "Invalid Date" });
+  }
+
+  res.json({
+    unix: date.getTime(),
+    utc: date.toUTCString(),
+  });
+});
+
+// Handle empty date parameter
+app.get("/api/", (req, res) => {
+  const date = new Date();
+  res.json({
+    unix: date.getTime(),
+    utc: date.toUTCString()
+  });
+});
 
 
 // your first API endpoint... 
